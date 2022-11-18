@@ -114,6 +114,7 @@ squadInstance.open();
   firstName:`${gateWayObj.firstname}`,
   lastName:`${gateWayObj.lastname}`, 
   merchantKey:`${gateWayObj.publicKey}`, 
+  merchantRef:`${gateWayObj.onlyPassReference}`,
   metadata: "", 
   onClose: (response) => {
       console.log("ONCLOSE DATA",response)
