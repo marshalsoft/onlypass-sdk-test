@@ -1,4 +1,9 @@
-const env = "live";
+const env = "test";
+var BaseUrl = "https://api.onlypassafrica.com/api/v1/external/payments";
+if(env == "test")
+{
+  var BaseUrl = "https://devapi.onlypassafrica.com/api/v1/external/payments";
+}
 // (function(){
 const OnlyPass = (apiKey,merchantId,isDemo = true)=>{
   const UniqueID = (d,prefix = "")=> {
@@ -17,21 +22,17 @@ const OnlyPass = (apiKey,merchantId,isDemo = true)=>{
     }
     return prefix+text;
   }
-var BaseUrl = "https://api.onlypassafrica.com/api/v1/external/payments";
-if(env == "test")
-{
-  BaseUrl = String(BaseUrl).replace("api.","devapi.");
-}
+
 const APICall = async (
     body = {},
-    url = BaseUrl)=>{
+    url = BaseUrl,method = "POST")=>{
     var myHeaders = new Headers();
     myHeaders.append("x-api-key",apiKey);
     myHeaders.append("x-platform-id",merchantId);
     myHeaders.append("Content-Type", "application/json");
     myHeaders.append("Accept", "application/json");
     var requestOptions = {
-      method:'POST',
+      method:method,
       headers:myHeaders,
       redirect:'follow',
       body:JSON.stringify(body)
@@ -55,7 +56,7 @@ const PayWithPaystack = (gateWayObj)=>{
       // callback(response)
     },
     onClose: function() {
-      // callback(null)
+      AbortCall(gateWayObj.onlyPassReference);
     }
   }
  var handler = window.PaystackPop.setup(d);
@@ -80,7 +81,7 @@ const PayWithFlutterwave = (gateWayObj)=>
         
       },
       onclose: function() {
-
+        AbortCall(gateWayObj.onlyPassReference);
       }
     }
     // alert(JSON.stringify(d));
@@ -89,7 +90,9 @@ const PayWithFlutterwave = (gateWayObj)=>
  }
  const PayWithSquad = (gateWayObj)=>{
   const squadInstance = new squad({
-    onClose: () =>{ },
+    onClose: () =>{
+      AbortCall(gateWayObj.onlyPassReference);
+     },
     onLoad: () => { },
     onSuccess: (response) =>{ },
     key: `${gateWayObj.publicKey}`,
@@ -114,6 +117,7 @@ squadInstance.open();
   metadata: "", 
   onClose: (response) => {
       console.log("ONCLOSE DATA",response)
+      AbortCall(gateWayObj.onlyPassReference);
   },
   callback: function (response) {
       let message = 'Payment complete! Reference: ' + response?.reference
@@ -154,7 +158,9 @@ const AddHeader = ()=>{
     AddHeader();
     return await APICall({},`${BaseUrl}/channels`);
   }
-  
+  const AbortCall = async(ref)=>{
+    await APICall({},`${BaseUrl}/${ref}`,"PATCH");
+  }
   const PayNow = async(
     amount = 0,
     memo = "",

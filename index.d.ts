@@ -1,4 +1,4 @@
-declare module 'onlypass-sdk' {
+declare module 'onlypass-sdk-test' {
     interface Gateway {
          merchantPaymentGatewayId: number;
          merchantId: number;
